@@ -1,10 +1,10 @@
 
 var GameLayer = cc.Layer.extend({
 
+    winsize: null,
     brickArray: [],
     pointer: -1,
-    stick: null,
-    winsize: null,
+    stickLayer: null,
 
     ctor:function () {
         this._super();
@@ -15,11 +15,8 @@ var GameLayer = cc.Layer.extend({
         bg.setPosition(cc.p(this.winsize.width/2, this.winsize.height/2));
         this.addChild(bg);
 
-        this.stick = new StickSprite();
-        this.stick.setPosition(cc.p(this.winsize.width/2, this.winsize.height - 30));
-        this.addChild(this.stick);
-
-        this.addBrick();
+        this.stickLayer = new StickLayer();
+        this.addChild(this.stickLayer);
 
 
         return true;
@@ -27,20 +24,95 @@ var GameLayer = cc.Layer.extend({
 
     addBrick: function(){
 
-        this.stick.stopMove();
-        var brick = new BrickSprite(this.stick.direction);
+        var brick = new BrickSprite();
 
-        brick.setPosition(cc.p(this.stick.getPosition().x, this.winsize.height - 100));
+        brick.setPosition(cc.p(this.stickLayer.getBrickPos().x + 40, this.stickLayer.getBrickPos().y));
         this.addChild(brick);
         this.brickArray.push(brick);
         this.pointer++;
-        this.stick.startMove();
 
     },
 
-    dropBrick: function(){
+    removeBrick: function(){
+
+        var brickPos = this.stickLayer.getBrickPos();
+
+        this.addBrick();
+
+        this.stickLayer.removeBrick();
+
 
     }
+});
+
+
+var StickLayer = cc.Layer.extend({
+
+    stick: null,
+    brick: null,
+    winsize: null,
+    speed: 2,
+
+    ctor:function () {
+
+        this._super();
+
+        this.winsize = cc.winSize;
+
+        this.stick = new StickSprite();
+        this.stick.setPosition(cc.p(this.winsize.width/2, this.winsize.height - 30));
+        this.addChild(this.stick);
+
+        this.addBrick();
+
+        this.moveStick();
+    },
+
+    moveStick: function(){
+
+        var action1 = cc.moveTo(this.speed, cc.p(-160, 0));
+        var action2 = cc.moveTo(this.speed, cc.p(160, 0));
+
+        this.moveAction = cc.sequence(
+            action1,
+            action2
+        );
+
+        this.repeatAction = cc.repeatForever(this.moveAction);
+
+        this.runAction(this.repeatAction);
+
+    },
+
+    addBrick: function(){
+
+        if (this.brick == null){
+            this.brick = new BrickSprite();
+
+            this.brick.setPosition(cc.p(this.stick.getPosition().x, this.winsize.height - 100));
+            this.addChild(this.brick);
+        }
+        else {
+            this.brick.visible = true;
+        }
+
+
+    },
+
+    removeBrick: function(){
+        this.brick.visible = false;
+    },
+
+    getBrickPos: function(){
+
+        var layerPos = this.getPosition();
+
+        layerPos.x += 160;
+        layerPos.y = this.winsize.height - 100;
+
+        return layerPos;
+    }
+
 });
 
 
@@ -65,77 +137,15 @@ var StickSprite =cc.Sprite.extend({
 
         this.addChild(drawnode);
 
-        this.startMove();
-
-    },
-
-    startMove: function(){
-
-        var that = this;
-
-        var action1 = null;
-        var action2 = null;
-
-        if (this.direction == "left"){
-            action1 = cc.moveTo(this.speed, cc.p(40, 570));
-            action2 = cc.moveTo(this.speed, cc.p(360, 570));
-        }
-        else {
-            action1 = cc.moveTo(this.speed, cc.p(360, 570));
-            action2 = cc.moveTo(this.speed, cc.p(40, 570));
-        }
-
-        var changeDirection1 = null;
-        var changeDirection2 = null;
-
-        if (this.direction == "left"){
-            changeDirection1 = "left";
-            changeDirection2 = "right";
-        }
-        else {
-            changeDirection1 = "right";
-            changeDirection2 = "left";
-        }
-
-        this.moveAction = cc.sequence(
-            cc.CallFunc.create(function(){
-                that.direction = changeDirection1;
-            }),
-            action1,
-            cc.CallFunc.create(function(){
-                that.direction = changeDirection2;
-            }),
-            action2
-        );
-
-        this.repeatAction = cc.repeatForever(this.moveAction);
-
-        this.runAction(this.repeatAction);
-
-
-
-    },
-
-    stopMove: function(){
-
-
-        this.stopAction(this.repeatAction);
-
-
     }
 
 })
 
 var BrickSprite =cc.Sprite.extend({
 
-    direction: "left",
-    speed: 0.8,
-
-    ctor:function (direction) {
+    ctor:function () {
 
         this._super();
-
-        this.direction = direction;
 
         var size = cc.winSize;
 
@@ -148,41 +158,6 @@ var BrickSprite =cc.Sprite.extend({
         drawnode.drawRect(cc.p(0,0), cc.p(80,100), cc.color(0, 0, 0, 255));
 
         this.addChild(drawnode);
-
-        this.startMove();
-
-    },
-
-    startMove: function(){
-
-        var action1 = null;
-        var action2 = null;
-
-        if (this.direction == "left"){
-            action1 = cc.moveTo(this.speed, cc.p(40, 500));
-            action2 = cc.moveTo(this.speed, cc.p(360, 500));
-        }
-        else {
-            action1 = cc.moveTo(this.speed, cc.p(360, 500));
-            action2 = cc.moveTo(this.speed, cc.p(40, 500));
-        }
-
-        var that = this;
-        this.moveAction = cc.sequence(
-            action1,
-            action2
-        );
-
-        this.repeatAction = cc.repeatForever(this.moveAction);
-
-        this.runAction(this.repeatAction);
-    },
-
-    stopMove: function(checkCollision, brickSuccessArray, parentN){
-
-        this.stopAction(this.repeatAction);
-
-        this.startDrop(checkCollision, brickSuccessArray, parentN);
 
     },
 
@@ -204,7 +179,17 @@ var BrickSprite =cc.Sprite.extend({
 
 
         this.dropAction = cc.sequence(
-            action
+            action,
+            cc.CallFunc.create(function(){
+                gameScene.layer.stickLayer.addBrick();
+                cc.eventManager.addListener(gameScene.listener, gameScene);
+
+                if (gameScene.brickSuccessArray.length >= 3){
+                    gameScene.layer.removeChild(gameScene.brickSuccessArray[0]);
+                    gameScene.layer.brickArray.shift();
+                }
+
+            })
         );
 
         this.runAction(this.dropAction);
@@ -268,7 +253,9 @@ var GameScene = cc.Scene.extend({
             onTouchBegan: function (touch, event) {
                 // event.getCurrentTarget() returns the *listener's* sceneGraphPriority node.
                 var target = event.getCurrentTarget();
-                cc.log("touch begin");
+
+                cc.eventManager.removeListener(target.listener);
+
                 //Get the position of the current point relative to the button
                 var locationInNode = target.convertToNodeSpace(touch.getLocation());
                 var s = target.getContentSize();
@@ -276,6 +263,8 @@ var GameScene = cc.Scene.extend({
 
                 //Check the click area
                 if (cc.rectContainsPoint(rect, locationInNode)) {
+
+                    that.layer.removeBrick();
 
                     that.currentPointer = that.layer.pointer;
 
@@ -287,7 +276,7 @@ var GameScene = cc.Scene.extend({
                         cc.log("height level:"+that.buildingHeight);
                     }
 
-                    that.layer.brickArray[that.layer.pointer].stopMove(result, that.brickSuccessArray, that);
+                    that.layer.brickArray[that.currentPointer].startDrop(result, that.brickSuccessArray, that);
 
                     return true;
                 }
@@ -332,6 +321,8 @@ var GameScene = cc.Scene.extend({
            }
 
        }
+
+        return "normal";
 
     },
 
