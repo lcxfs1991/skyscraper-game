@@ -1,0 +1,8 @@
+//
+// Prefix header for all source files of the 'pggame' target in the 'pggame' project
+//
+
+#ifdef __OBJC__
+	#import <Foundation/Foundation.h>
+	#import <UIKit/UIKit.h>
+#endif
