@@ -2,6 +2,7 @@
 var StatusLayer = cc.Layer.extend({
 
     lifeNum: 3,
+    levelNum: 0,
     winsize: null,
     gameScene: null,
 
@@ -14,6 +15,8 @@ var StatusLayer = cc.Layer.extend({
         this.winsize = cc.winSize;
 
         this.addLife();
+
+        this.addLevel();
     },
 
     addLife: function(){
@@ -32,6 +35,19 @@ var StatusLayer = cc.Layer.extend({
     changeLife: function(){
         this.lifeNum--;
         this.labelLife.setString(""+this.lifeNum);
+    },
+
+    addLevel: function(){
+
+        this.labelLevel = cc.LabelTTF.create(this.levelNum+"层", "Helvetica", 32);
+        this.labelLevel.setColor(cc.color(0,0,0));//black color
+        this.labelLevel.setPosition(cc.p(340, this.winsize.height - 20));
+        this.addChild(this.labelLevel);
+    },
+
+    changeLevel: function(){
+        this.levelNum++;
+        this.labelLevel.setString(this.levelNum+"层");
     }
 
 });
@@ -216,8 +232,6 @@ var BrickSprite =cc.Sprite.extend({
             action = cc.moveTo(this.dropSpeed, cc.p(pos.x, 50 + len));
         }
 
-
-
         this.dropAction = cc.sequence(
             action,
             cc.CallFunc.create(function(){
@@ -234,7 +248,7 @@ var BrickSprite =cc.Sprite.extend({
             })
         );
 
-        this.runAction(this.dropAction);
+       this.runAction(this.dropAction);
 
     },
 
@@ -278,7 +292,11 @@ var GameScene = cc.Scene.extend({
     onEnter:function () {
 
         this._super();
+
+        this.brickSuccessArray = [];
+
         this.layer = new GameLayer(this);
+        this.layer.brickArray = [];
         this.addChild(this.layer);
 
         this.statusLayer = new StatusLayer(this);
@@ -318,7 +336,6 @@ var GameScene = cc.Scene.extend({
                     if (result == "normal"){
                         that.brickSuccessArray.push(that.layer.brickArray[that.layer.pointer]);
                         that.buildingHeight++;
-                        cc.log("height level:"+that.buildingHeight);
                     }
 
                     that.layer.brickArray[that.currentPointer].startDrop(result, that.brickSuccessArray, that);
@@ -346,7 +363,9 @@ var GameScene = cc.Scene.extend({
 
        if (this.currentPointer == 0){
            this.basePos = this.layer.brickArray[this.currentPointer].getPos();
-           cc.log(this.basePos);
+
+           this.statusLayer.changeLevel();
+
            return "normal";
        }
         else {
@@ -354,14 +373,16 @@ var GameScene = cc.Scene.extend({
            var brickPos1 = this.brickSuccessArray[this.brickSuccessArray.length - 1].getPos();
            var brickPos2 = this.layer.brickArray[this.currentPointer].getPos();
 
-           cc.log(brickPos1);
-           cc.log(brickPos2);
+//           cc.log(brickPos1);
+//           cc.log(brickPos2);
 
            if (Math.abs(brickPos2.x - brickPos1.x) <= 55){
 
                if (this.brickSuccessArray.length >= 2){
                    this.moveBg();
                }
+
+               this.statusLayer.changeLevel();
 
                return "normal";
            }
