@@ -1,13 +1,54 @@
 
+var StatusLayer = cc.Layer.extend({
+
+    lifeNum: 3,
+    winsize: null,
+    gameScene: null,
+
+    ctor: function(gameScene){
+
+        this._super();
+
+        this.gameScene = gameScene;
+
+        this.winsize = cc.winSize;
+
+        this.addLife();
+    },
+
+    addLife: function(){
+
+        this.life = cc.Sprite.create(res.Life_png);
+        this.life.setPosition(cc.p(20, this.winsize.height - 20));
+        this.addChild(this.life);
+
+        this.labelLife = cc.LabelTTF.create(""+this.lifeNum, "Helvetica", 32);
+        this.labelLife.setColor(cc.color(0,0,0));//black color
+        this.labelLife.setPosition(cc.p(60, this.winsize.height - 20));
+        this.addChild(this.labelLife);
+
+    },
+
+    changeLife: function(){
+        this.lifeNum--;
+        this.labelLife.setString(""+this.lifeNum);
+    }
+
+});
+
+
 var GameLayer = cc.Layer.extend({
 
     winsize: null,
     brickArray: [],
     pointer: -1,
     stickLayer: null,
+    gameScene: null,
 
-    ctor:function () {
+    ctor:function (gameScene) {
         this._super();
+
+        this.gameScene = gameScene;
 
         this.winsize = cc.winSize;
 
@@ -51,7 +92,7 @@ var StickLayer = cc.Layer.extend({
     stick: null,
     brick: null,
     winsize: null,
-    speed: 2,
+    speed: 0.5,
 
     ctor:function () {
 
@@ -118,9 +159,6 @@ var StickLayer = cc.Layer.extend({
 
 var StickSprite =cc.Sprite.extend({
 
-    direction: "left",
-    speed: 0.8,
-
     ctor:function () {
 
         this._super();
@@ -142,6 +180,8 @@ var StickSprite =cc.Sprite.extend({
 })
 
 var BrickSprite =cc.Sprite.extend({
+
+    dropSpeed: 0.3,
 
     ctor:function () {
 
@@ -170,10 +210,10 @@ var BrickSprite =cc.Sprite.extend({
         var len = (brickSuccessArray.length - 1) * 100;
 
         if (checkCollision == "fail"){
-            action = cc.moveTo(0.5, cc.p(pos.x, -60));
+            action = cc.moveTo(this.dropSpeed, cc.p(pos.x, -60));
         }
         else {
-            action = cc.moveTo(0.5, cc.p(pos.x, 50 + len));
+            action = cc.moveTo(this.dropSpeed, cc.p(pos.x, 50 + len));
         }
 
 
@@ -188,6 +228,8 @@ var BrickSprite =cc.Sprite.extend({
                     gameScene.layer.removeChild(gameScene.brickSuccessArray[0]);
                     gameScene.layer.brickArray.shift();
                 }
+
+                gameScene.checkGameResult();
 
             })
         );
@@ -234,9 +276,13 @@ var GameScene = cc.Scene.extend({
     listener: null,
 
     onEnter:function () {
+
         this._super();
-        this.layer = new GameLayer();
+        this.layer = new GameLayer(this);
         this.addChild(this.layer);
+
+        this.statusLayer = new StatusLayer(this);
+        this.addChild(this.statusLayer);
 
         this.control();
     },
@@ -263,7 +309,6 @@ var GameScene = cc.Scene.extend({
 
                 //Check the click area
                 if (cc.rectContainsPoint(rect, locationInNode)) {
-
                     that.layer.removeBrick();
 
                     that.currentPointer = that.layer.pointer;
@@ -301,14 +346,18 @@ var GameScene = cc.Scene.extend({
 
        if (this.currentPointer == 0){
            this.basePos = this.layer.brickArray[this.currentPointer].getPos();
+           cc.log(this.basePos);
            return "normal";
        }
         else {
 
-           var brickPos1 = this.layer.brickArray[this.currentPointer - 1].getPos();
+           var brickPos1 = this.brickSuccessArray[this.brickSuccessArray.length - 1].getPos();
            var brickPos2 = this.layer.brickArray[this.currentPointer].getPos();
 
-           if (Math.abs(brickPos2.x - brickPos1.x) <= 30 || Math.abs(brickPos2.x - this.basePos.x) <= 50 ){
+           cc.log(brickPos1);
+           cc.log(brickPos2);
+
+           if (Math.abs(brickPos2.x - brickPos1.x) <= 55){
 
                if (this.brickSuccessArray.length >= 2){
                    this.moveBg();
@@ -317,6 +366,7 @@ var GameScene = cc.Scene.extend({
                return "normal";
            }
            else {
+               this.statusLayer.changeLife();
                return "fail";
            }
 
@@ -330,12 +380,20 @@ var GameScene = cc.Scene.extend({
 
         for (var i = 0; i < this.brickSuccessArray.length; i++){
 
-            var action = cc.moveTo(0.5, cc.p(this.brickSuccessArray[i].getPos().x, this.brickSuccessArray[i].getPos().y - 100));
+            var action = cc.moveTo(0.3, cc.p(this.brickSuccessArray[i].getPos().x, this.brickSuccessArray[i].getPos().y - 100));
             this.brickSuccessArray[i].runAction(action);
 
         }
 
         this.brickSuccessArray.shift();
+
+    },
+
+    checkGameResult: function(){
+
+        if (this.buildingHeight == 30 || this.statusLayer.lifeNum == 0){
+            cc.director.runScene(cc.TransitionFade.create(1.2, new GameResultScene(this.buildingHeight)));
+        }
 
     }
 });
