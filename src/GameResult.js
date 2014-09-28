@@ -26,24 +26,24 @@ var GameResultLayer = cc.Layer.extend({
 
         this.centerPos = cc.p(this.winsize.width / 2, this.winsize.height / 2);
 
-        var floor = this.buildingHeight * 10;
+        var floor = this.buildingHeight;
 
-        if (this.buildingHeight <= 5){
-            this.Msg = "你砌了一幢"+floor+"层的公寓，\n获得农民搬砖工称号。";
+        if (this.buildingHeight <= 10){
+            this.Msg = "你砌了"+floor+"块砖，\n获得屌丝搬砖工称号。";
         }
-        else if (this.buildingHeight > 5 && this.buildingHeight <= 15){
-            this.Msg = "你砌了一幢"+floor+"层的东方明珠电视塔，\n获得程序猿搬砖称号。";
+        else if (this.buildingHeight > 10 && this.buildingHeight <= 25){
+            this.Msg = "你砌了"+floor+"块砖，\n获得低级搬砖工称号。";
         }
-        else if (this.buildingHeight > 15 && this.buildingHeight <= 25){
-            this.Msg = "你砌了一幢"+floor+"层的小蛮腰塔，\n获得金融搬砖工称号。";
+        else if (this.buildingHeight > 25 && this.buildingHeight <= 40){
+            this.Msg = "你砌了"+floor+"块砖，\n获得高级搬砖工称号。";
         }
-        else if (this.buildingHeight > 25){
-            this.Msg = "你砌了一幢"+floor+"层的帝国大厦，\n获得宝洁高富帅白富美称号。";
+        else if (this.buildingHeight > 40){
+            this.Msg = "你砌了"+floor+"块砖，\n获得高富帅白富美称号。";
         }
 
         this.onSuccess();
 
-        Wechat.imgUrl = 'http://leehey.org/publish/res/logo.png';
+        Wechat.imgUrl = 'http://leehey.org/skyscraper/res/brick.ico';
         Wechat.lineLink = 'http://leehey.org/skyscraper/';
         Wechat.descContent = this.Msg;
         Wechat.shareTitle = Wechat.descContent;
@@ -111,6 +111,14 @@ var GameResultLayer = cc.Layer.extend({
         DeadlineLabel.setColor(cc.color(255, 255, 255));
         DeadlineLabel.setPosition(cc.p(this.winsize.width / 2, this.winsize.height / 2 + 60));
         this.addChild(DeadlineLabel);
+
+
+        //create the background sprite
+        var pgLogo = cc.Sprite.create(res.PG_png);
+
+        pgLogo.setPosition(cc.p(this.winsize.width / 2, this.winsize.height - 50));
+
+        this.addChild(pgLogo);
 
 
     },

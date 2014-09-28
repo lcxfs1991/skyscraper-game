@@ -54,7 +54,7 @@ var StatusLayer = cc.Layer.extend({
 
     addTime: function(){
 
-        this.number = 10.0;
+        this.number = 60.0;
 
         var labelName = ""+this.number;
         _labelNumber = cc.LabelTTF.create(labelName, "Arial", 32);
@@ -149,7 +149,7 @@ var StickLayer = cc.Layer.extend({
     stick: null,
     brick: null,
     winsize: null,
-    speed: 0.5,
+    speed: 1,
 
     ctor:function () {
 
@@ -180,6 +180,10 @@ var StickLayer = cc.Layer.extend({
 
         this.runAction(this.repeatAction);
 
+    },
+
+    stopStick: function(){
+      this.stopAction(this.repeatAction);
     },
 
     addBrick: function(){
@@ -388,6 +392,22 @@ var GameScene = cc.Scene.extend({
                     if (result == "normal"){
                         that.brickSuccessArray.push(that.layer.brickArray[that.layer.pointer]);
                         that.buildingHeight++;
+
+                        if (that.buildingHeight == 5){
+                            that.layer.stickLayer.stopStick();
+                            that.layer.stickLayer.speed -= 0.3;
+                            that.layer.stickLayer.moveStick();
+                        }
+                        else if (that.buildingHeight == 15){
+                            that.layer.stickLayer.stopStick();
+                            that.layer.stickLayer.speed -= 0.2;
+                            that.layer.stickLayer.moveStick();
+                        }
+                        else if (that.buildingHeight == 25){
+                            that.layer.stickLayer.stopStick();
+                            that.layer.stickLayer.speed -= 0.2;
+                            that.layer.stickLayer.moveStick();
+                        }
                     }
 
                     that.layer.brickArray[that.currentPointer].startDrop(result, that.brickSuccessArray, that);
