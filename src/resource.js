@@ -5,14 +5,14 @@ var res = {
     RESTART_png: "res/restart.png",
     SHARE_png: "res/share.png",
     BRICK_png: "res/brick.png",
-    BRICK_png1: "res/brick.png1",
-    BRICK_png2: "res/brick.png2",
-    BRICK_png3: "res/brick.png3",
-    BRICK_png4: "res/brick.png4",
-    BRICK_png5: "res/brick.png5",
+    BRICK_png1: "res/brick1.png",
+    BRICK_png2: "res/brick2.png",
+    BRICK_png3: "res/brick3.png",
+    BRICK_png4: "res/brick4.png",
+    BRICK_png5: "res/brick5.png",
     BG_png: "res/bg.jpg",
-    GameIntro: "res/gameintro.jpg",
-    GameOver: "res/gameover.jpg"
+    BlueBG_png: "res/blueBG.jpg",
+    PG_png: "res/pg.png"
 
 };
 
@@ -30,8 +30,7 @@ var g_resources = [
     res.BRICK_png4,
     res.BRICK_png5,
     res.BG_png,
-    res.GameIntro,
-    res.GameOver
+    res.BlueBG_png
     //plist
 
     //fnt

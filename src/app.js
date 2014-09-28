@@ -17,6 +17,8 @@ var StatusLayer = cc.Layer.extend({
         this.addLife();
 
         this.addLevel();
+
+        this.addTime();
     },
 
     addLife: function(){
@@ -41,13 +43,48 @@ var StatusLayer = cc.Layer.extend({
 
         this.labelLevel = cc.LabelTTF.create(this.levelNum+"层", "Helvetica", 32);
         this.labelLevel.setColor(cc.color(0,0,0));//black color
-        this.labelLevel.setPosition(cc.p(340, this.winsize.height - 20));
+        this.labelLevel.setPosition(cc.p(50, this.winsize.height - 60));
         this.addChild(this.labelLevel);
     },
 
     changeLevel: function(){
         this.levelNum++;
         this.labelLevel.setString(this.levelNum+"层");
+    },
+
+    addTime: function(){
+
+        this.number = 10.0;
+
+        var labelName = ""+this.number;
+        _labelNumber = cc.LabelTTF.create(labelName, "Arial", 32);
+        _labelNumber.setColor(cc.color(0, 0, 0));
+        _labelNumber.setPosition(cc.p(this.winsize.width - 70, this.winsize.height - 20));
+
+        _updateRate = 0.1;
+
+        this.addChild(_labelNumber);
+
+        this.schedule(this.changeTime, _updateRate);
+    },
+
+    changeTime: function(){
+
+        this.number -= _updateRate;
+
+        if (this.number <= 0.01){
+            this.stopScheduler();
+            cc.director.runScene(cc.TransitionFade.create(1.2, new GameResultScene(this.gameScene.buildingHeight)));
+        }
+
+        if(_labelNumber == null) return;
+
+        _labelNumber.setString(""+Math.round(this.number*100)/100+" 秒");
+
+    },
+
+    stopScheduler: function(){
+        this.unschedule(this.changeTime);
     }
 
 });
@@ -68,7 +105,7 @@ var GameLayer = cc.Layer.extend({
 
         this.winsize = cc.winSize;
 
-        var bg = new BgSprite();
+        var bg = new PlayBgSprite();
         bg.setPosition(cc.p(this.winsize.width/2, this.winsize.height/2));
         this.addChild(bg);
 
@@ -81,7 +118,7 @@ var GameLayer = cc.Layer.extend({
 
     addBrick: function(){
 
-        var brick = new BrickSprite();
+        var brick = new BrickSprite(this.getRandom(1, 5));
 
         brick.setPosition(cc.p(this.stickLayer.getBrickPos().x + 40, this.stickLayer.getBrickPos().y));
         this.addChild(brick);
@@ -99,6 +136,10 @@ var GameLayer = cc.Layer.extend({
         this.stickLayer.removeBrick();
 
 
+    },
+
+    getRandom: function (min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 });
 
@@ -116,7 +157,7 @@ var StickLayer = cc.Layer.extend({
 
         this.winsize = cc.winSize;
 
-        this.stick = new StickSprite();
+        this.stick = new StickSprite(0);
         this.stick.setPosition(cc.p(this.winsize.width/2, this.winsize.height - 30));
         this.addChild(this.stick);
 
@@ -199,21 +240,30 @@ var BrickSprite =cc.Sprite.extend({
 
     dropSpeed: 0.3,
 
-    ctor:function () {
+    ctor:function (brickTypeNum) {
 
         this._super();
 
         var size = cc.winSize;
 
+        var brickType = 'BRICK_png';
+
+        if (brickTypeNum > 0){
+            brickType += brickTypeNum;
+        }
+
+
+        this.initWithFile(res[brickType]);
+
         //set sprite size
-        this.width = 80;
-        this.height = 100;
+//        this.width = 80;
+//        this.height = 100;
 
-        var drawnode = cc.DrawNode.create();
+//        var drawnode = cc.DrawNode.create();
+//
+//        drawnode.drawRect(cc.p(0,0), cc.p(80,100), cc.color(0, 0, 0, 255));
 
-        drawnode.drawRect(cc.p(0,0), cc.p(80,100), cc.color(0, 0, 0, 255));
-
-        this.addChild(drawnode);
+//        this.addChild(drawnode);
 
     },
 
@@ -223,13 +273,13 @@ var BrickSprite =cc.Sprite.extend({
 
         var action = null;
 
-        var len = (brickSuccessArray.length - 1) * 100;
+        var len = (brickSuccessArray.length - 1) * 65;
 
         if (checkCollision == "fail"){
-            action = cc.moveTo(this.dropSpeed, cc.p(pos.x, -60));
+            action = cc.moveTo(this.dropSpeed, cc.p(pos.x, -50));
         }
         else {
-            action = cc.moveTo(this.dropSpeed, cc.p(pos.x, 50 + len));
+            action = cc.moveTo(this.dropSpeed, cc.p(pos.x, 35 + len));
         }
 
         this.dropAction = cc.sequence(
@@ -258,23 +308,25 @@ var BrickSprite =cc.Sprite.extend({
 
 })
 
-var BgSprite =cc.Sprite.extend({
+var PlayBgSprite =cc.Sprite.extend({
 
     ctor:function () {
 
         this._super();
 
-        var size = cc.winSize;
+//        var size = cc.winSize;
+//
+//        //set sprite size
+//        this.width = 400;
+//        this.height = 600;
+//
+//        var drawnode = cc.DrawNode.create();
+//
+//        drawnode.drawRect(cc.p(0,0), cc.p(size.width,size.height), cc.color(255,255,255,255));
+//
+//        this.addChild(drawnode);
 
-        //set sprite size
-        this.width = 400;
-        this.height = 600;
-
-        var drawnode = cc.DrawNode.create();
-
-        drawnode.drawRect(cc.p(0,0), cc.p(size.width,size.height), cc.color(255,255,255,255));
-
-        this.addChild(drawnode);
+        this.initWithFile(res.BG_png);
 
     }
 
@@ -376,7 +428,7 @@ var GameScene = cc.Scene.extend({
 //           cc.log(brickPos1);
 //           cc.log(brickPos2);
 
-           if (Math.abs(brickPos2.x - brickPos1.x) <= 55){
+           if (Math.abs(brickPos2.x - brickPos1.x) <= 60){
 
                if (this.brickSuccessArray.length >= 2){
                    this.moveBg();
@@ -401,7 +453,7 @@ var GameScene = cc.Scene.extend({
 
         for (var i = 0; i < this.brickSuccessArray.length; i++){
 
-            var action = cc.moveTo(0.3, cc.p(this.brickSuccessArray[i].getPos().x, this.brickSuccessArray[i].getPos().y - 100));
+            var action = cc.moveTo(0.3, cc.p(this.brickSuccessArray[i].getPos().x, this.brickSuccessArray[i].getPos().y - 65));
             this.brickSuccessArray[i].runAction(action);
 
         }
@@ -412,7 +464,7 @@ var GameScene = cc.Scene.extend({
 
     checkGameResult: function(){
 
-        if (this.buildingHeight == 30 || this.statusLayer.lifeNum == 0){
+        if (this.statusLayer.lifeNum == 0){
             cc.director.runScene(cc.TransitionFade.create(1.2, new GameResultScene(this.buildingHeight)));
         }
 

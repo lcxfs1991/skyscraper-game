@@ -55,7 +55,7 @@ var GameResultLayer = cc.Layer.extend({
 
     onSuccess:function(){
 
-        var bg = new BgSprite();
+        var bg = new ResultBgSprite();
         bg.setPosition(cc.p(this.winsize.width/2, this.winsize.height/2));
         this.addChild(bg);
 
@@ -71,7 +71,7 @@ var GameResultLayer = cc.Layer.extend({
             this.onRestart, this);
 
         var menu = cc.Menu.create(this.RestartBtn);
-        menu.setPosition(this.winsize.width / 2, this.winsize.height / 2 + 20);
+        menu.setPosition(this.winsize.width / 2, this.winsize.height / 2 - 40);
         this.addChild(menu);
 
         //share button
@@ -81,7 +81,7 @@ var GameResultLayer = cc.Layer.extend({
             this.onShare, this);
 
         var share = cc.Menu.create(this.ShareBtn);
-        share.setPosition(cc.p(this.winsize.width / 2, this.winsize.height / 2 - 40));
+        share.setPosition(cc.p(this.winsize.width / 2, this.winsize.height / 2 - 100));
         this.addChild(share);
 
         //follow button
@@ -91,16 +91,26 @@ var GameResultLayer = cc.Layer.extend({
             this.onFollow, this);
 
         var follow = cc.Menu.create(this.FollowBtn);
-        follow.setPosition(cc.p(this.winsize.width / 2, this.winsize.height / 2 - 100));
+        follow.setPosition(cc.p(this.winsize.width / 2, this.winsize.height / 2 - 160));
         this.addChild(follow);
 
 
-
-
         var MsgLabel = cc.LabelTTF.create(this.Msg, "STHeiti Droidsansfallback Dengxian Microsoft JhengHei STHeiti", 24);
-        MsgLabel.setColor(cc.color(0, 0, 0));
-        MsgLabel.setPosition(cc.p(this.winsize.width / 2, this.winsize.height / 2 + 100));
+        MsgLabel.setColor(cc.color(255, 255, 255));
+        MsgLabel.setPosition(cc.p(this.winsize.width / 2, this.winsize.height / 2 + 140));
         this.addChild(MsgLabel);
+
+        var a = new Date(); // Now
+        var b = new Date(2014, 9, 10, 0, 0, 0, 0); // 2010
+        var day = Math.round((b-a)/1000/3600/24);
+
+        var DeadlineMsg = "离宝洁申请结束时间还有"+day+"天!\n";
+        DeadlineMsg += "10月10日就截止啦!抓紧时间!"
+
+        var DeadlineLabel = cc.LabelTTF.create(DeadlineMsg, "STHeiti Droidsansfallback Dengxian Microsoft JhengHei STHeiti", 24);
+        DeadlineLabel.setColor(cc.color(255, 255, 255));
+        DeadlineLabel.setPosition(cc.p(this.winsize.width / 2, this.winsize.height / 2 + 60));
+        this.addChild(DeadlineLabel);
 
 
     },
@@ -155,6 +165,30 @@ var GameResultLayer = cc.Layer.extend({
         window.location = "http://mp.weixin.qq.com/s?__biz=MjM5MTA0NzU1NQ==&mid=200749859&idx=1&sn=41893ee9ad1221ec9a79d7a9c3e49f2a&scene=1#rd";
     }
 });
+
+var ResultBgSprite =cc.Sprite.extend({
+
+    ctor:function () {
+
+        this._super();
+
+//        var size = cc.winSize;
+//
+//        //set sprite size
+//        this.width = 400;
+//        this.height = 600;
+//
+//        var drawnode = cc.DrawNode.create();
+//
+//        drawnode.drawRect(cc.p(0,0), cc.p(size.width,size.height), cc.color(255,255,255,255));
+//
+//        this.addChild(drawnode);
+
+        this.initWithFile(res.BlueBG_png);
+
+    }
+
+})
 
 var GameResultScene = cc.Scene.extend({
 
