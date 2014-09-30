@@ -28,28 +28,32 @@ var GameResultLayer = cc.Layer.extend({
 
         var floor = this.buildingHeight;
 
-        if (this.buildingHeight <= 10){
+        if (this.buildingHeight <= 5){
             this.Msg = "你砌了"+floor+"块砖，\n获得屌丝搬砖工称号。";
         }
-        else if (this.buildingHeight > 10 && this.buildingHeight <= 25){
+        else if (this.buildingHeight > 5 && this.buildingHeight <= 10){
             this.Msg = "你砌了"+floor+"块砖，\n获得低级搬砖工称号。";
         }
-        else if (this.buildingHeight > 25 && this.buildingHeight <= 40){
+        else if (this.buildingHeight > 10 && this.buildingHeight <= 20){
             this.Msg = "你砌了"+floor+"块砖，\n获得高级搬砖工称号。";
         }
-        else if (this.buildingHeight > 40){
+        else if (this.buildingHeight > 20){
             this.Msg = "你砌了"+floor+"块砖，\n获得高富帅白富美称号。";
         }
 
+        this.Msg = "你行你搬啊!"+this.Msg+"\n国庆你还在搬砖么?";
+
         this.onSuccess();
 
-        Wechat.imgUrl = 'http://leehey.org/skyscraper/res/brick.ico';
-        Wechat.lineLink = 'http://leehey.org/skyscraper/';
-        Wechat.descContent = this.Msg;
-        Wechat.shareTitle = Wechat.descContent;
-        document.title = Wechat.descContent;
+//        Wechat.imgUrl = 'http://leehey.org/skyscraper/res/brick.png';
+//        Wechat.lineLink = 'http://leehey.org/skyscraper/';
+//        Wechat.descContent = this.Msg;
+//        Wechat.shareTitle = Wechat.descContent;
+//        document.title = Wechat.descContent;
 
-        shareTimeline(Wechat.imgUrl, Wechat.lineLink, Wechat.descContent, Wechat.shareTitle);
+//        shareTimeline(Wechat.imgUrl, Wechat.lineLink, Wechat.descContent, Wechat.shareTitle);
+
+        share(this.Msg);
 
     },
 
@@ -97,26 +101,31 @@ var GameResultLayer = cc.Layer.extend({
 
         var MsgLabel = cc.LabelTTF.create(this.Msg, "STHeiti Droidsansfallback Dengxian Microsoft JhengHei STHeiti", 24);
         MsgLabel.setColor(cc.color(255, 255, 255));
-        MsgLabel.setPosition(cc.p(this.winsize.width / 2, this.winsize.height / 2 + 140));
+        MsgLabel.setPosition(cc.p(this.winsize.width / 2, this.winsize.height / 2 + 200));
         this.addChild(MsgLabel);
 
         var a = new Date(); // Now
         var b = new Date(2014, 9, 10, 0, 0, 0, 0); // 2010
         var day = Math.round((b-a)/1000/3600/24);
 
-        var DeadlineMsg = "离宝洁申请结束时间还有"+day+"天!\n";
-        DeadlineMsg += "10月10日就截止啦!抓紧时间!"
+        var DeadlineMsg = "离宝洁全职(实习生)\n申请结束时间还有        天!\n";
+        DeadlineMsg += "10月10日就截止啦!报名速到\nchina.experiencepg.com"
 
         var DeadlineLabel = cc.LabelTTF.create(DeadlineMsg, "STHeiti Droidsansfallback Dengxian Microsoft JhengHei STHeiti", 24);
         DeadlineLabel.setColor(cc.color(255, 255, 255));
-        DeadlineLabel.setPosition(cc.p(this.winsize.width / 2, this.winsize.height / 2 + 60));
+        DeadlineLabel.setPosition(cc.p(this.winsize.width / 2, this.winsize.height / 2 + 70));
         this.addChild(DeadlineLabel);
 
+        var DayLabel = cc.LabelTTF.create(day, "STHeiti Droidsansfallback Dengxian Microsoft JhengHei STHeiti", 35);
+        DayLabel.setColor(cc.color(241, 196, 15));
+        DayLabel.setPosition(cc.p(this.winsize.width - 130, this.winsize.height / 2 + 85));
+        this.addChild(DayLabel);
 
-        //create the background sprite
+
+        //create the PG logo
         var pgLogo = cc.Sprite.create(res.PG_png);
 
-        pgLogo.setPosition(cc.p(this.winsize.width / 2, this.winsize.height - 50));
+        pgLogo.setPosition(cc.p(this.winsize.width - 40, this.winsize.height - 40));
 
         this.addChild(pgLogo);
 
@@ -125,7 +134,7 @@ var GameResultLayer = cc.Layer.extend({
 
     onRestart:function(){
 
-        document.title = "大家来搬砖";
+        document.title = "你行你搬啊!";
         var scene = new GameScene();
         cc.director.runScene(scene);
     },

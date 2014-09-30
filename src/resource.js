@@ -12,7 +12,9 @@ var res = {
     BRICK_png5: "res/brick5.png",
     BG_png: "res/bg.jpg",
     BlueBG_png: "res/blueBG.jpg",
-    PG_png: "res/pg.png"
+    IntroBG_png: "res/introBG.jpg",
+    PG_png: "res/pg.png",
+    Stick_png: "res/stick.png"
 
 };
 
@@ -30,7 +32,10 @@ var g_resources = [
     res.BRICK_png4,
     res.BRICK_png5,
     res.BG_png,
-    res.BlueBG_png
+    res.BlueBG_png,
+    res.PG_png,
+    res.IntroBG_png,
+    res.Stick_png
     //plist
 
     //fnt

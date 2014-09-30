@@ -118,7 +118,7 @@ var GameLayer = cc.Layer.extend({
 
     addBrick: function(){
 
-        var brick = new BrickSprite(this.getRandom(1, 5));
+        var brick = new BrickSprite(null);
 
         brick.setPosition(cc.p(this.stickLayer.getBrickPos().x + 40, this.stickLayer.getBrickPos().y));
         this.addChild(brick);
@@ -136,10 +136,6 @@ var GameLayer = cc.Layer.extend({
         this.stickLayer.removeBrick();
 
 
-    },
-
-    getRandom: function (min, max) {
-        return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 });
 
@@ -157,7 +153,7 @@ var StickLayer = cc.Layer.extend({
 
         this.winsize = cc.winSize;
 
-        this.stick = new StickSprite(0);
+        this.stick = new StickSprite();
         this.stick.setPosition(cc.p(this.winsize.width/2, this.winsize.height - 30));
         this.addChild(this.stick);
 
@@ -189,7 +185,7 @@ var StickLayer = cc.Layer.extend({
     addBrick: function(){
 
         if (this.brick == null){
-            this.brick = new BrickSprite();
+            this.brick = new BrickSprite(0);
 
             this.brick.setPosition(cc.p(this.stick.getPosition().x, this.winsize.height - 100));
             this.addChild(this.brick);
@@ -218,23 +214,25 @@ var StickLayer = cc.Layer.extend({
 });
 
 
-var StickSprite =cc.Sprite.extend({
+var StickSprite = cc.Sprite.extend({
 
     ctor:function () {
 
         this._super();
 
-        var size = cc.winSize;
+//        var size = cc.winSize;
 
         //set sprite size
-        this.width = 30;
-        this.height = 60;
+//        this.width = 30;
+//        this.height = 60;
+//
+//        var drawnode = cc.DrawNode.create();
+//
+//        drawnode.drawRect(cc.p(0,0), cc.p(30,60), cc.color(231, 76, 60, 255));
+//
+//        this.addChild(drawnode);
 
-        var drawnode = cc.DrawNode.create();
-
-        drawnode.drawRect(cc.p(0,0), cc.p(30,60), cc.color(231, 76, 60, 255));
-
-        this.addChild(drawnode);
+        this.initWithFile(res.Stick_png);
 
     }
 
@@ -250,25 +248,51 @@ var BrickSprite =cc.Sprite.extend({
 
         var size = cc.winSize;
 
-        var brickType = 'BRICK_png';
+        if (brickTypeNum == null){
 
-        if (brickTypeNum > 0){
-            brickType += brickTypeNum;
+            var randNum = this.getRandom(1, 5);
+
+            if (randNum == 1){
+                this.initWithFile(res.BRICK_png1);
+            }
+            else if (randNum == 2){
+                this.initWithFile(res.BRICK_png2);
+            }
+            else if (randNum == 3){
+                this.initWithFile(res.BRICK_png3);
+            }
+            else if (randNum == 4){
+                this.initWithFile(res.BRICK_png4);
+            }
+            else if (randNum == 5){
+                this.initWithFile(res.BRICK_png5);
+            }
+
+        }
+        else {
+
+            this.initWithFile(res.BRICK_png);
         }
 
 
-        this.initWithFile(res[brickType]);
+//        cc.log(brickType);
 
-        //set sprite size
+
+
+//        set sprite size
 //        this.width = 80;
 //        this.height = 100;
-
+//
 //        var drawnode = cc.DrawNode.create();
 //
 //        drawnode.drawRect(cc.p(0,0), cc.p(80,100), cc.color(0, 0, 0, 255));
-
+//
 //        this.addChild(drawnode);
 
+    },
+
+    getRandom: function (min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
     },
 
     startDrop: function(checkCollision, brickSuccessArray, gameScene){
@@ -319,8 +343,8 @@ var PlayBgSprite =cc.Sprite.extend({
         this._super();
 
 //        var size = cc.winSize;
-//
-//        //set sprite size
+
+        //set sprite size
 //        this.width = 400;
 //        this.height = 600;
 //
@@ -398,7 +422,7 @@ var GameScene = cc.Scene.extend({
                             that.layer.stickLayer.speed -= 0.3;
                             that.layer.stickLayer.moveStick();
                         }
-                        else if (that.buildingHeight == 15){
+                        else if (that.buildingHeight == 10){
                             that.layer.stickLayer.stopStick();
                             that.layer.stickLayer.speed -= 0.2;
                             that.layer.stickLayer.moveStick();
@@ -445,8 +469,6 @@ var GameScene = cc.Scene.extend({
            var brickPos1 = this.brickSuccessArray[this.brickSuccessArray.length - 1].getPos();
            var brickPos2 = this.layer.brickArray[this.currentPointer].getPos();
 
-//           cc.log(brickPos1);
-//           cc.log(brickPos2);
 
            if (Math.abs(brickPos2.x - brickPos1.x) <= 60){
 
